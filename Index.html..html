@@ -1,0 +1,130 @@
+<!doctype html><html lang="cs"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Převodník mezizubních kartáčků</title>
+<style>
+*{box-sizing:border-box}body{margin:0;padding:24px 12px;background:#fff1f6;color:#503642;font:16px Arial,sans-serif}main{max-width:850px;margin:auto;background:white;padding:30px;border-radius:22px;box-shadow:0 8px 30px #b65c7c20}h1{text-align:center;color:#b94f7c;font-size:30px}.intro{text-align:center;line-height:1.6;color:#765f6a;margin-bottom:28px}label{display:block;font-weight:bold;margin:16px 0 8px}input,select,button{width:100%;padding:14px;border-radius:11px;font-size:16px}input,select{border:1px solid #e8c5d4;background:white;color:#503642}button{margin-top:16px;border:0;background:#b94f7c;color:white;font-weight:bold;cursor:pointer}button:hover{background:#a33f6b}.hint,footer{font-size:13px;color:#806b75;line-height:1.5;margin-top:8px}#status{color:#a33f6b;font-weight:bold;margin:24px 0 12px}.group{border:1px solid #f0d5e0;border-radius:14px;margin:14px 0;overflow:hidden}.head{background:#fff0f5;padding:14px 17px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}.head h2{margin:0;color:#a33f6b;font-size:19px}.phd{font-size:13px;color:#806b75}ul{list-style:none;margin:0;padding:8px 18px 14px}li{padding:9px 0;border-bottom:1px solid #f8eaf0;line-height:1.45}li:last-child{border:0}.empty{background:#fff5f8;padding:18px;border-radius:12px;color:#806b75}@media(max-width:520px){main{padding:20px 15px}h1{font-size:25px}}
+</style></head><body><main>
+<h1>Najdi svou ideální značku mezizubních kartáčků! 🦷</h1>
+<p class="intro">Máš změřenou velikost mezizubních kartáčků od dentální hygienistky, ale chceš vyzkoušet jinou značku? Tento program ti pomůže najít odpovídající velikost u různých značek na základě barvy nebo názvu kartáčku, který nyní používáš.</p>
+<label for="q">Jaký mezizubní kartáček pacient používá?</label><input id="q" placeholder="Např. červený Curaprox, CPS 07 prime nebo velikost 0">
+<div class="hint">Zadej značku, barvu, model, kód nebo číslo velikosti. Vyhledávání ignoruje diakritiku a pořadí slov.</div>
+<label for="filter">Filtrovat podle velikosti</label><select id="filter"><option value="all">Všechny velikosti 0–10</option><option value="0">Velikost 0</option><option value="1">Velikost 1</option><option value="2">Velikost 2</option><option value="3">Velikost 3</option><option value="4">Velikost 4</option><option value="5">Velikost 5</option><option value="6">Velikost 6</option><option value="7">Velikost 7</option><option value="8">Velikost 8</option><option value="9">Velikost 9</option><option value="10">Velikost 10</option></select>
+<button id="go">Vyhledat</button><div id="status"></div><div id="results"></div>
+<footer>Orientační převodník podle dodané tabulky. Vhodnou velikost vždy ověř podle doporučení dentální hygienistky nebo zubního lékaře.</footer></main>
+<script>
+const groups=[[0, "PHD < 0,6 mm", [["Curaprox", "tyrkysový", "CPS 06 prime"], ["TePe", "růžový", "0,4 mm"], ["Spokar XM", "oranžový", "0,4 mm"], ["Dontodent", "růžový", "velikost 0"], ["Prokudent", "růžový", "ISO 0"], ["Softdent Eco XS", "oranžový", ""], ["GUM Trav-Ler", "světle fialový", "0,6 mm"], ["The Humble (Bamboo)", "růžový", "0,4 mm"], ["Tandex Flexi 0,6 Turquoise", "tyrkysový", ""]]], [1, "PHD 0,7 mm", [["Curaprox", "červený", "CPS 07 prime"], ["TePe", "oranžový", "0,45 mm"], ["Dontodent", "oranžový", "velikost 1"], ["Prokudent", "oranžový", "ISO 1"], ["Softdent Eco S", "růžový", ""], ["Herbadent HERo S", "světle žlutý", ""], ["The Humble (Bamboo)", "oranžový", "0,45 mm"], ["Tandex Flexi 0,7 Coral", "růžový", ""]]], [2, "PHD 0,8 mm", [["Curaprox", "růžový", "CPS 08 prime"], ["GUM Trav-Ler", "červený", "0,8 mm"], ["Tandex Flexi 0,8 Tangerine", "oranžový", ""]]], [3, "PHD 0,9–1,0 mm", [["Curaprox", "žlutý", "CPS 09 prime"], ["TePe", "červený", "0,5 mm"], ["Spokar XM", "růžový", "0,5 mm"], ["Dontodent", "červený", "velikost 2"], ["Prokudent", "červený", "ISO 2"], ["Softdent Eco M", "modrý", ""], ["Herbadent HERo M", "světle zelený", ""], ["GUM Trav-Ler", "oranžový", "0,9 mm"], ["The Humble (Bamboo)", "červený", "0,5 mm"], ["Tandex Flexi 0,9 Ruby", "červený", ""], ["Tandex Flexi 1,0 Aqua", "modrý", "PHD 1,0 mm – o něco větší kartáček; vejde se do o něco většího prostoru než zbylé kartáčky ve skupině"]]], [4, "PHD 1,1 mm", [["Curaprox", "zelený", "CPS 011 prime"], ["TePe", "modrý", "0,6 mm"], ["Spokar XM", "modrý", "0,6 mm"], ["Dontodent", "modrý", "velikost 3"], ["Prokudent", "modrý", "ISO 3"], ["Herbadent HERo L", "tmavě zelený", ""], ["GUM Trav-Ler", "zelený", "1,1 mm"], ["The Humble (Bamboo)", "modrý", "0,6 mm"], ["Tandex Flexi 1,1 Lemon", "žlutý", ""]]], [5, "PHD 1,2–1,3 mm", [["Curaprox", "tmavě červený", "CPS 405 Perio Start"], ["TePe", "žlutý", "0,7 mm"], ["Spokar XM", "žlutý", "0,7 mm"], ["Dontodent", "žlutá", "velikost 4"], ["Prokudent", "žlutý", "ISO 4"], ["The Humble (Bamboo)", "žlutý", "0,7 mm"], ["GUM Trav-Ler", "žlutý", "1,3 mm"], ["GUM Trav-Ler", "tmavě fialový", "1,2 mm – PHD 1,2 mm; o něco menší kartáček, vejde se do o něco menšího prostoru než zbylé kartáčky ve skupině"]]], [6, "PHD 1,4–1,5 mm", [["GUM Trav-Ler", "růžový", "1,4 mm"], ["Tandex Flexi 1,4 Lilac", "světle fialový", ""]]], [7, "PHD 1,6–1,8 mm", [["Curaprox", "růžovo-fialový", "CPS 406 Perio Start"], ["TePe", "zelený", "0,8 mm"], ["Spokar XML", "zelený", "0,8 mm"], ["GUM Trav-Ler", "modrý", "1,6 mm"], ["The Humble (Bamboo)", "zelený", "0,8 mm"], ["Tandex Flexi 1,6 Lime", "zelený", ""]]], [8, "PHD 1,9–2,3 mm", [["Curaprox", "fialový", "CPS 408 Perio Start"], ["TePe", "fialový", "1,1 mm"], ["GUM Trav-Ler", "šedý", "2,0 mm"], ["Tandex Flexi 1,9 Violet", "tmavě fialový", ""]]], [9, "PHD 2,4–2,8 mm", [["Curaprox", "modrý", "CPS 410 Perio Start"], ["TePe", "šedý", "1,3 mm"], ["GUM Trav-Ler", "tmavě šedý", "2,6 mm"]]], [10, "PHD > 2,9 mm", [["TePe", "černý", "1,5 mm"]]]];
+
+const norm = s => s.toLocaleLowerCase('cs')
+  .normalize('NFD')
+  .replace(/[\u0300-\u036f]/g, '')
+  .replace(/[–—]/g, '-')
+  .replace(/[^a-z0-9]+/g, ' ')
+  .trim();
+
+function stem(word) {
+  if (!word || /^\d+$/.test(word)) return word;
+  const endings = [
+    'oveho','ove','eho','ymi','emi','ych','ich','emu','ovou',
+    'ovou','eji','ejsi','ejsi','ej','ou','ym','em','om','ho',
+    'mu','mi','u','y','a','e','i','o'
+  ];
+  for (const ending of endings) {
+    if (word.length - ending.length >= 3 && word.endsWith(ending)) {
+      return word.slice(0, -ending.length);
+    }
+  }
+  return word;
+}
+
+function tokens(s) {
+  return norm(s).split(/\s+/).filter(Boolean).flatMap(t => {
+    const m = t.match(/^cps0*(\d+)$/);
+    return m ? ['cps', m[1]] : [t];
+  }).map(stem);
+}
+
+function tokenMatches(queryToken, itemTokens) {
+  return itemTokens.some(itemToken => {
+    if (queryToken === itemToken) return true;
+    if (/^\d+$/.test(queryToken) || /^\d+$/.test(itemToken)) {
+      return queryToken === itemToken;
+    }
+    return (queryToken.length >= 3 && itemToken.startsWith(queryToken)) ||
+           (itemToken.length >= 3 && queryToken.startsWith(itemToken));
+  });
+}
+
+function matchesItem(query, item) {
+  const itemTokens = norm(item.join(' ')).split(/\s+/).filter(Boolean).map(stem);
+  return query.every(t => tokenMatches(t, itemTokens));
+}
+
+function render() {
+  const raw = document.getElementById('q').value.trim();
+  const filter = document.getElementById('filter').value;
+  const queryNorm = norm(raw);
+  const sizeMatch = queryNorm.match(
+    /^(?:(?:velikost|velikosti|size)\s*)?(10|[0-9])$/
+  );
+
+  let found;
+  if (filter !== 'all') {
+    found = groups.filter(g => g[0] === Number(filter));
+  } else if (sizeMatch) {
+    found = groups.filter(g => g[0] === Number(sizeMatch[1]));
+  } else if (!raw) {
+    found = groups;
+  } else {
+    const q = tokens(raw);
+    found = groups.filter(g => g[2].some(item => matchesItem(q, item)));
+  }
+
+  const results = document.getElementById('results');
+  const status = document.getElementById('status');
+  results.replaceChildren();
+
+  if (!found.length) {
+    status.textContent = 'Nic jsme nenašli.';
+    const empty = document.createElement('div');
+    empty.className = 'empty';
+    empty.textContent = 'Zkus zadat značku, barvu, kód nebo číslo velikosti.';
+    results.append(empty);
+    return;
+  }
+
+  const count = found.reduce((n, g) => n + g[2].length, 0);
+  status.textContent = sizeMatch && filter === 'all'
+    ? `Velikost ${found[0][0]}: nalezeno ${count} kartáčků.`
+    : `Nalezené velikostní skupiny: ${found.map(g => g[0]).join(', ')}. Zobrazeno ${count} kartáčků v celých skupinách.`;
+
+  found.forEach(g => {
+    const section = document.createElement('section');
+    section.className = 'group';
+    const head = document.createElement('div');
+    head.className = 'head';
+    const title = document.createElement('h2');
+    title.textContent = 'Velikost ' + g[0];
+    const phd = document.createElement('span');
+    phd.className = 'phd';
+    phd.textContent = g[1];
+    head.append(title, phd);
+
+    const list = document.createElement('ul');
+    g[2].forEach(item => {
+      const li = document.createElement('li');
+      li.textContent = item[0] + ' – ' + item[1] + (item[2] ? ' – ' + item[2] : '');
+      list.append(li);
+    });
+    section.append(head, list);
+    results.append(section);
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('go').addEventListener('click', render);
+  document.getElementById('q').addEventListener('keydown', e => {
+    if (e.key === 'Enter') render();
+  });
+  document.getElementById('filter').addEventListener('change', render);
+  render();
+});
+
+</script></body></html>
